@@ -69,15 +69,23 @@ else
 end
 
 %% Offset or mis-align the unscrambling block.
-
+disp('Offset or mis-align the unscrambling block.')
 % Offset or mis-align the unscrambling block by one bit with respect to the
 % scrambling block and compare the new "uncscrambled" block to the original
 % data. Explained what happened and why. 
-data_unscrambled_shifted = data_unscrambled(1:end-1); % shifted unscrambled data 1 bit to the left.
+% Example vector
+original_vector = data_unscrambled;
 
-if data_unscrambled_shifted == data_scrambled(1:end-1)
-    disp('  data_unscrambled_shifted == data_scrambled');
+% Shifting elements to the right by 1 index
+shifted_vector = [original_vector(2:end), 0];
+data_unscrambled_offset = shifted_vector; % shifted unscrambled data 1 bit to the left.
+
+if data_unscrambled_offset == data
+    disp('  data_unscrambled_offset == data');
 else
-    disp('  data_unscrambled_shifted != data_scrambled');
+    disp('  data_unscrambled_offset != data');
 end
 
+% Answer: The data values are not equal. Using a scrambler does not gaurantee 
+% proper encoding of the data. If data bits become misaligned errors will
+% occur.
