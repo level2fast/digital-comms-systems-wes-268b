@@ -89,17 +89,9 @@ for idx=1:length(Eb_N0)
         I_channel = real(modulated_symbols(1:2:end));
         Q_channel = real(modulated_symbols(2:2:end));
 
-        i_rect_pulse_uncoded = i_data_unscrambled;
-        i_rect_pulse_uncoded(i_rect_pulse_uncoded > 0) = 1;
-        i_rect_pulse_uncoded(i_rect_pulse_uncoded < 0) = 0;
-
-        q_rect_pulse_uncoded = q_data_unscrambled;
-        q_rect_pulse_uncoded(q_rect_pulse_uncoded > 0) = 1;
-        q_rect_pulse_uncoded(q_rect_pulse_uncoded < 0) = 0;
-
         % Channel code each stream using the repeat (3,1) code
-        i_modulated_symbols_encoded = repetition_code_encode(i_rect_pulse_uncoded);
-        q_modulated_symbols_encoded = repetition_code_encode(q_rect_pulse_uncoded);
+        i_modulated_symbols_encoded = repetition_code_encode(I_channel);
+        q_modulated_symbols_encoded = repetition_code_encode(Q_channel);
         
         % Scramble the coded sequence using a scrambler
         [i_scrambled_data, i_prbs] = scramble_data(i_modulated_symbols_encoded,5);
@@ -108,12 +100,12 @@ for idx=1:length(Eb_N0)
         % Threshold data and apply pulse shaping
         i_rect_pulse = i_scrambled_data;
         i_rect_pulse(i_rect_pulse > 0) = 1;
-        i_rect_pulse(i_rect_pulse == 0) = -1;
+        i_rect_pulse(i_rect_pulse < 0) = -1;
         i_rect_pulse = i_rect_pulse * A;
 
         q_rect_pulse = q_scrambled_data;
         q_rect_pulse(q_rect_pulse > 0) = 1;
-        q_rect_pulse(q_rect_pulse == 0) = -1;
+        q_rect_pulse(q_rect_pulse < 0) = -1;
         q_rect_pulse =  q_rect_pulse * A;
 
         %% Channel 
@@ -137,8 +129,7 @@ for idx=1:length(Eb_N0)
         i_data_unscrambled = xor(i_rect_pulse_decoded, i_prbs);
         q_data_unscrambled = xor(q_rect_pulse_decoded, q_prbs);
 
-        if(i_data_unscrambled != )
-
+        
         % compute the total number of errors
         num_errors =+ i_error + q_error;
 
@@ -147,18 +138,19 @@ for idx=1:length(Eb_N0)
 
         % compute the probability of symbol error
 
-        num_bits   =+ i_bits + q_bits;
+        num_bits   =+ i_bits  + q_bits;
     end 
    BER(idx) = numErrors/numBits;
 end
 
 
 
-% Plot the uncoded probability of a bit error and the uncoded probability of a symbol error for
+% Using this simulation, produce the following curves:
+% 1. Uncoded probability of a bit error and the uncoded probability of a symbol error for
 % QPSK down to an error rate of about 10−4
 
-% Plot the coded probability of a bit error for one quadrature components using the (3, 1) repeat
+% 2. Coded probability of a bit error for one quadrature components using the (3, 1) repeat
 % code.
 
-% Determine the coding gain at pe = 10−4 and compare this simulated value with theory
+% 3. Determine the coding gain at pe = 10−4 and compare this simulated value with theory
 % for BPSK for a single quadrature component.
