@@ -14,7 +14,7 @@ I_channel = modulated_symbols(1:2:end);
 Q_channel = modulated_symbols(2:2:end);
 
 % Plot the QPSK constellation diagram
-scatter(I_channel, Q_channel, 'o');
+scatter(real(I_channel), real(Q_channel), 'o');
 title('QPSK Constellation Diagram');
 xlabel('I Channel');
 ylabel('Q Channel');
