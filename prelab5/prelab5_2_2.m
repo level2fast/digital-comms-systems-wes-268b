@@ -2,7 +2,7 @@
 
 %% Create  Data source which consists of a random sequence of 0's and 1's
 % Parameters
-num_symbols = 16;  % Number of QPSK symbols
+num_symbols = 128;  % Number of QPSK symbols
 data_bits = randi([0, 1], 1, 2 * num_symbols);  % Random binary data
 
 % QPSK Modulation
@@ -14,11 +14,11 @@ I_channel = real(modulated_symbols(1:2:end));
 Q_channel = real(modulated_symbols(2:2:end));
 
 % Plot the QPSK constellation diagram
-scatter((I_channel), (Q_channel), 'o');
-title('QPSK Constellation Diagram');
-xlabel('I Channel');
-ylabel('Q Channel');
-axis square;
+% scatter((I_channel), (Q_channel), 'o');
+% title('QPSK Constellation Diagram');
+% xlabel('I Channel');
+% ylabel('Q Channel');
+% axis square;
 %% Channel code each stream using the repeat (3,1) code
 i_modulated_symbols_encoded = repetition_code_encode(I_channel);
 q_modulated_symbols_encoded = repetition_code_encode(Q_channel);
@@ -70,6 +70,7 @@ i_error = 0;
 q_error = 0;
 i_bits = 0;
 q_bits = 0;
+Pe_theoretical = zeros(1,length(Eb_N0));
 % for each signal to noise ratio
 for idx=1:length(Eb_N0)
     num_errors = 0;
@@ -80,6 +81,8 @@ for idx=1:length(Eb_N0)
     A = sqrt(Rc * Eb_N0(idx)); 
     i_temp = i_rect_pulse_noisy*A;
     q_temp = q_rect_pulse_noisy*A;  
+    % compute the probability of bit error(Pe) for BPSK
+    Pe_theoretical(idx) = 0.5 * qfunc(sqrt(Eb_N0(idx)));
 
     while( num_errors < 200 )
         %% Modulator
@@ -168,9 +171,6 @@ for idx=1:length(Eb_N0)
         % compute the total number of errors
         num_errors = num_errors + i_error + q_error;
 
-        % compute the probability of bit error(Pe) for BPSK
-        Pe_theoretical = 0.5 * qfunc(sqrt(Eb_N0(idx)));
-
         % compute the probability of symbol error
         % look at every 3 bits of the decoded message and determine the
         % symbol error rate
@@ -189,8 +189,9 @@ for idx=1:length(Eb_N0)
                 symbol_error = symbol_error + 1;
             end
         end
-
-        num_bits = num_bits + i_bits + q_bits;
+        % accumulate errors / bits
+        num_bits = num_bits + num_symbols;
+        %num_bits = num_bits + i_bits + q_bits;
     end 
    BER(idx) = num_errors/num_bits;
 end
