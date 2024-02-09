@@ -2,7 +2,7 @@
 
 %% Create  Data source which consists of a random sequence of 0's and 1's
 % Parameters
-num_symbols = 64;  % Number of QPSK symbols
+num_symbols = 16;  % Number of QPSK symbols
 data_bits = randi([0, 1], 1, 2 * num_symbols);  % Random binary data
 
 % QPSK Modulation
@@ -61,20 +61,26 @@ q_rect_pulse_noisy = noise + q_rect_pulse;
 bits = zeros(1, num_symbols);  % bits
 rBits = zeros(1,num_symbols);  % received bits
 n = zeros(1,num_symbols*N);    % noise vector
-x = zeros(1,num_symbols*N);    % data vector    
+i_decoded_data = zeros(1,num_symbols*N/2);    % data vector 
+q_decoded_data = zeros(1,num_symbols*N/2);    % data vector 
 e = zeros(1,num_symbols*N);    % error vector
 y = zeros(1,num_symbols*N);    % received vector
 std_deviation = sqrt(1/2);
-
+i_error = 0;
+q_error = 0;
+i_bits = 0;
+q_bits = 0;
 % for each signal to noise ratio
 for idx=1:length(Eb_N0)
     num_errors = 0;
     num_bits   = 0;
+    symbol_error = 0;
 
     % calc amplitude of qpsk symbol
     A = sqrt(Rc * Eb_N0(idx)); 
     i_temp = i_rect_pulse_noisy*A;
     q_temp = q_rect_pulse_noisy*A;  
+
     while( num_errors < 200 )
         %% Modulator
         % Create  Data source which consists of a random sequence of 0's and 1's
@@ -88,12 +94,13 @@ for idx=1:length(Eb_N0)
         % Separate data into I and Q channels
         I_channel = real(modulated_symbols(1:2:end));
         Q_channel = real(modulated_symbols(2:2:end));
+        
 
-        i_rect_pulse_uncoded = i_data_unscrambled;
+        i_rect_pulse_uncoded = I_channel;
         i_rect_pulse_uncoded(i_rect_pulse_uncoded > 0) = 1;
         i_rect_pulse_uncoded(i_rect_pulse_uncoded < 0) = 0;
 
-        q_rect_pulse_uncoded = q_data_unscrambled;
+        q_rect_pulse_uncoded = Q_channel;
         q_rect_pulse_uncoded(q_rect_pulse_uncoded > 0) = 1;
         q_rect_pulse_uncoded(q_rect_pulse_uncoded < 0) = 0;
 
@@ -125,11 +132,11 @@ for idx=1:length(Eb_N0)
         %% Receiver
         % Decode each of the unscrambled binary streams separately using a
         % majority logic rule.
-        i_rect_pulse_decoded = i_data_unscrambled;
+        i_rect_pulse_decoded = i_rect_pulse_noisy;
         i_rect_pulse_decoded(i_rect_pulse_decoded > 0) = 1;
         i_rect_pulse_decoded(i_rect_pulse_decoded < 0) = 0;
 
-        q_rect_pulse_decoded = q_data_unscrambled;
+        q_rect_pulse_decoded = q_rect_pulse_noisy;
         q_rect_pulse_decoded(q_rect_pulse_decoded > 0) = 1;
         q_rect_pulse_decoded(q_rect_pulse_decoded < 0) = 0;
 
@@ -137,19 +144,55 @@ for idx=1:length(Eb_N0)
         i_data_unscrambled = xor(i_rect_pulse_decoded, i_prbs);
         q_data_unscrambled = xor(q_rect_pulse_decoded, q_prbs);
 
-        if(i_data_unscrambled != )
+        % Now use majority logic rule to check every 3 bits. 
+        % loop through i data 
+        len = length(i_data_unscrambled)/3; % determine how many steps we should take for every 3 bits
+        end_idx = 3;
+        start_idx = 1;
+        i_decoded_data(:) = 0;
+        q_decoded_data(:) = 0;
+        for idxDecode=1:len
+            end_idx = 3* idxDecode; % calculate first end index
+
+            i_three_bits = i_data_unscrambled(start_idx:end_idx);
+            i_decoded_data(idxDecode) = majority_logic_rule(i_three_bits);
+            
+            q_three_bits = q_data_unscrambled(start_idx:end_idx);
+            q_decoded_data(idxDecode) = majority_logic_rule(q_three_bits);
+            
+            start_idx = start_idx + 3;
+        end
+        i_error = compare_and_sum(i_decoded_data,i_rect_pulse_uncoded);
+        q_error = compare_and_sum(q_decoded_data,q_rect_pulse_uncoded);
 
         % compute the total number of errors
-        num_errors =+ i_error + q_error;
+        num_errors = num_errors + i_error + q_error;
 
         % compute the probability of bit error(Pe) for BPSK
         Pe_theoretical = 0.5 * qfunc(sqrt(Eb_N0(idx)));
 
         % compute the probability of symbol error
+        % look at every 3 bits of the decoded message and determine the
+        % symbol error rate
+        for idxSymblErr=1:length(i_decoded_data)
+            % extract 1 symbol from decoded vector i.e. i and q component
+            i_comp_dec = i_decoded_data(idxSymblErr);
+            q_comp_dec = q_decoded_data(idxSymblErr);
+            symbol_decoded = [i_comp_dec q_comp_dec];
+            % extract 1 symbol from uncoded vector i.e. i and q component
+            i_comp_unc = i_rect_pulse_uncoded(idxSymblErr);
+            q_comp_unc = q_rect_pulse_uncoded(idxSymblErr);
+            symbol_uncoded = [i_comp_unc q_comp_unc];
 
-        num_bits   =+ i_bits + q_bits;
+            % compare the symbols
+            if(isequal(symbol_decoded,symbol_uncoded))
+                symbol_error = symbol_error + 1;
+            end
+        end
+
+        num_bits = num_bits + i_bits + q_bits;
     end 
-   BER(idx) = numErrors/numBits;
+   BER(idx) = num_errors/num_bits;
 end
 
 
