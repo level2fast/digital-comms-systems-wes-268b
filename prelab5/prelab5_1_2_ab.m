@@ -7,7 +7,7 @@ EbN0dB_1 = linspace(-5, 10, 100);
 EbN0_1 = 10.^(EbN0dB_1 / 10);
 
 % Calculate the theoretical Pe for BPSK
-Pe_theoretical = 0.5 * qfunc(sqrt(EbN0_1));
+Pe_theoretical = qfunc(sqrt(EbN0_1));
 % Plot the results
 figure(1);
 
@@ -25,7 +25,8 @@ EbN0dB_2 = linspace(-5, 10, 100);
 EbN0_2 = 10.^(EbN0dB_2 / 10);
 
 % Calculate the theoretical Pe for BPSK
-Pb_theoretical_2 = 0.5 * qfunc(sqrt(EbN0_2*0.5));
+Pb_theoretical_2 = qfunc(sqrt(EbN0_2*0.5));
+
 % Plot the results
 hold on
 semilogy(EbN0dB_2, Pb_theoretical_2, 'LineWidth', 2);
