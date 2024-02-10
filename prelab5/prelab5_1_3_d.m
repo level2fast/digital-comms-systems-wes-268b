@@ -1,3 +1,4 @@
+%% Problem 1.3.d
 % calculate the asymptotic coding gain 
 % Transmission parameters
 n = 24; % Number of bits in a block

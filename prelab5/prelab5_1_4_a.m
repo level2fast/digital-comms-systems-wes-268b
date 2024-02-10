@@ -1,4 +1,4 @@
-%% Problem 4.a
+%% Problem 1.4.a
 % MATLAB script for constructing a systematic Generator matrix G. 
 
 % What is a Generator matrix?
@@ -43,6 +43,6 @@ I_k = eye(k);   % Form the identity matrix for k bits
 
 % Create a systematic generator matrix G
 K_t = H(:, 1:k)'; % grab information bits from parity check matrix
-G = [I_k K_t]; % combine identity matrix with information bits transposed 
+G = [I_k K_t];    % combine identity matrix with information bits transposed 
 disp('Systematic Generator Matrix G:');
 disp(G);
