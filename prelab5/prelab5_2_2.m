@@ -1,6 +1,6 @@
 % This script produces a simulation of a QPSK modulator/demodulator with coding. 
 
-num_symbols = 500;  % Number of QPSK symbols
+num_symbols = 16;  % Number of QPSK symbols
 rng(42);  % Set the random seed for reproducibility
 k = 1;    % information bits
 n = 3;    % total bits
@@ -8,18 +8,15 @@ Rc = k/n; % code rate
 
 % This assumes that the transmitted pulse shape is rectangular and 
 % modulation mapping for each binary data stream
-Eb_N0_dB = -10:0.5:10;        % Range of Eb/N0 values in dB
-Eb_N0 = 10.^(Eb_N0_dB / 10);  % Convert dB to linear scale
-BER = zeros(1,length(Eb_N0)); % pre-allocate BER vector
-N   = 1;            % samples per symbol
+Eb_N0_dB = -1:1:12;                % Range of Eb/N0 values in dB
+Eb_N0    = 10.^(Eb_N0_dB / 10);    % Convert dB to linear scale
+BER      = zeros(1,length(Eb_N0)); % pre-allocate BER vector
+N        = 1;                      % samples per symbol
+
 i_decoded_data = zeros(1,num_symbols*N/2);    % data vector 
 q_decoded_data = zeros(1,num_symbols*N/2);    % data vector 
-Eb_bpsk = 1;
-Eb = Eb_bpsk * 2;      % Energy per bit
-% calc amplitude of qpsk symbol
-A = sqrt(Rc * Eb); 
-  
-% Pe_theoretical = zeros(1,length(Eb_N0));
+sigma = 1/sqrt(2);                            % noise variance
+
 % for each signal to noise ratio
 for idx=1:length(Eb_N0)
     num_errors = 0;
@@ -27,10 +24,8 @@ for idx=1:length(Eb_N0)
     symbol_error = 0;
     i_error = 0;
     q_error = 0;
-
-    % gen noise
-    sigma = sqrt(2/(Eb_N0(idx)));
-
+    % calc amplitude of qpsk symbol
+    A = sqrt(Rc * Eb_N0(idx)); 
     while( num_errors < 200 )
         %% Modulator
         % Create  Data source which consists of a random sequence of 0's and 1's
@@ -63,13 +58,11 @@ for idx=1:length(Eb_N0)
 
         % Threshold data and apply pulse shaping
         i_rect_pulse = i_scrambled_data;
-        i_rect_pulse(i_rect_pulse > 0) = 1;
-        i_rect_pulse(i_rect_pulse == 0) = -1;
+        i_rect_pulse = (i_rect_pulse * 2) - 1;
         i_rect_pulse = i_rect_pulse * A;
 
         q_rect_pulse = q_scrambled_data;
-        q_rect_pulse(q_rect_pulse > 0) = 1;
-        q_rect_pulse(q_rect_pulse == 0) = -1;
+        q_rect_pulse = (q_rect_pulse * 2) -1;
         q_rect_pulse =  q_rect_pulse * A;
 
         %% Channel 
@@ -144,12 +137,8 @@ for idx=1:length(Eb_N0)
    BER(idx) = num_errors/num_bits;
 end
 
-%% Plot the uncoded probability of a bit error down to an error rate of about 10−4
+%% Q2.2.1 - Plot the uncoded probability of a bit error down to an error rate of about 10e−4
 % MATLAB script for plotting Pe vs. Eb/N0 for QPSK
-% Parameters
-%Eb_N0_dB = -15:0.5:15; % Range of Eb/N0 values in dB
-%Eb_N0 = 10.^(Eb_N0_dB / 10); % Convert dB to linear scale
-
 % QPSK modulation parameters
 M = 4;       % QPSK modulation order
 k = log2(M); % Number of bits per symbol
@@ -158,21 +147,17 @@ k = log2(M); % Number of bits per symbol
 Pe_uncoded = qfunc(sqrt(2*Eb_N0 / k)); % Uncoded BER for QPSK
 
 % Plot Pe vs. Eb/N0
-% figure(1);
-% semilogy(Eb_N0_dB, Pe_uncoded, 'b-o', 'LineWidth', 2);
-% grid on;
-% title('Uncoded Probability of Single Data Bit Error (Pe) vs. Eb/N0 for QPSK');
-% xlabel('Eb/N0 (dB)');
-% ylabel('Probability of Single Data Bit Error (Pe)');
-% legend('Uncoded QPSK');
-% grid on;
+figure(1);
+semilogy(Eb_N0_dB, Pe_uncoded, 'b-o', 'LineWidth', 2);
+grid on;
+title('Uncoded Probability of Single Data Bit Error (Pe) vs. Eb/N0 for QPSK');
+xlabel('Eb/N0 (dB)');
+ylabel('Probability of Single Data Bit Error (Pe)');
+legend('Uncoded QPSK');
+grid on;
 
-%% Plot the uncoded probability of a symbol error for QPSK down to an error rate of about 10−4
+%% Q2.2.1 - Plot the uncoded probability of a symbol error for QPSK down to an error rate of about 10e−4
 % MATLAB script for plotting Pe vs. Eb/N0 for uncoded QPSK
-% Parameters
-% Eb_N0_dB = -15:0.5:15; % Range of Eb/N0 values in dB
-% Eb_N0 = 10.^(Eb_N0_dB / 10); % Convert dB to linear scale
-
 % QPSK modulation parameters
 M = 4;       % QPSK modulation order
 k = log2(M); % Number of bits per symbol
@@ -182,15 +167,15 @@ energy_per_symbol = 2*qfunc(sqrt(2*Eb_N0 / k)); % energy per symbol is 2 * energ
 Pe_symbol_uncoded = 1 - (1 - energy_per_symbol);
 
 % Plot Pe vs. Eb/N0
-% figure(2);
-% semilogy(Eb_N0_dB, Pe_symbol_uncoded, 'b-o', 'LineWidth', 2);
-% grid on;
-% title('Uncoded Probability of Symbol Error (Pe) vs. Eb/N0 for QPSK');
-% xlabel('Eb/N0 (dB)');
-% ylabel('Probability of Symbol Error (Pe)');
-% legend('Uncoded QPSK');
+figure(2);
+semilogy(Eb_N0_dB, Pe_symbol_uncoded, 'b-o', 'LineWidth', 2);
+grid on;
+title('Uncoded Probability of Symbol Error (Pe) vs. Eb/N0 for QPSK');
+xlabel('Eb/N0 (dB)');
+ylabel('Probability of Symbol Error (Pe)');
+legend('Uncoded QPSK');
 
-%% Plot the coded probability of a bit error for one quadrature components using the (3, 1) repeat code.
+%% Q2.2.2 Plot the coded probability of a bit error for one quadrature components using the (3, 1) repeat code.
 figure(3)
 semilogy(Eb_N0_dB,BER,'b-o','LineWidth',2);
 grid on;
@@ -200,4 +185,13 @@ title('BER vs. EbNo (dB)');
 legend('Simulated BER');
 
 
-%% Determine the coding gain at pe = 10−4 and compare this simulated value with theory for BPSK for a single quadrature component.
+%% Q2.2.3 Determine the coding gain at pe = 10−4 and compare this simulated value with theory for BPSK for a single quadrature component.
+figure(4);
+semilogy( Eb_N0_dB,BER,'b-o',Eb_N0_dB, Pe_uncoded,'r-o',"LineWidth",2);
+grid on;
+xlabel('EbNo (dB)');
+ylabel('BER');
+title('BER vs. EbNo (dB)');
+legend('Simulated BER','Theory BER');
+
+Display("Q2.2.3 Answer: Coding gain is approximately 2.5dB")
