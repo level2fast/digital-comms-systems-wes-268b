@@ -12,7 +12,6 @@
 
 %% Use hard decision detection to decode the message
 % Define a (7,4) Hamming Code
-% G = [1 1 0 1 0 0 0; 0 1 1 0 1 0 0; 1 1 1 0 0 1 0; 1 0 1 0 0 0 1];
 H = [1,0,1,1,1,0,0;
      1,1,0,1,0,1,0;
      0,1,1,1,0,0,1];
