@@ -1,5 +1,4 @@
 %% 2.3 Comparison of Hard and Soft Decoding for the Hamming Code
-
 % Load data
 data = load("msg_coded.mat");
 received_codeword = data.rx_blocks;
@@ -37,7 +36,7 @@ for idxNewMat = 1:iter_count
     next_row = next_row + 2;
 end
 
-dec_col_vec = zeros(size(received_codeword,1)/2,1);
+dec_col_vec = zeros(size(decoded_message,1)/2,1);
 for idxDecMat = 1:iter_count
     dec_col_vec(idxDecMat) = uint8(bi2de(new_mat(idxDecMat,:)));
 end

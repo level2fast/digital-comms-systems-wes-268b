@@ -32,11 +32,10 @@ function decoded_message = hamming_7_4_decoder(encoded_message,parity_check_mat)
     end
 
     % Perform error correction
-    %errorPosition = bin2dec(num2str(flip(syndrome)));
-    error_position = (length(encoded_message_noisy) - bin2dec(num2str(flip(syndrome)))) +1;
+    % Index starting from the right  most position in this vector, matlab defaults to left most
+    error_position = (length(encoded_message_noisy) - bin2dec(num2str(flip(syndrome)))) + 1;
 
-    % Correct the error, TODO sdd: I need to index starting from the right
-    % most position in this vector, matlab defaults to left most
+    % Correct the error, 
     encoded_message_noisy(error_position) = mod(encoded_message_noisy(error_position) + 1, 2);
 
     % Extract 1st 4 bits which correspond to the message that was sent 
