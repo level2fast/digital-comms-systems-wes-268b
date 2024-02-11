@@ -44,5 +44,13 @@ end
 image = reshape(dec_col_vec,x_dim,y_dim);
 imshow(image);
 
-
+% 6.Now, you will compare the differences between using a soft-decision decoder vs. a hard
+% decision decoder
+% Answer: The term "hard decision" refers to the discrete and deterministic
+% nature of the decoding process, where each received symbol is decisively 
+% classified as one of the possible transmitted symbols. This is in contrast
+% to "soft decision" decoding, where the decoder considers the reliability 
+% or likelihood of each received symbol, often represented as probabilities.
+% Softe decision decoding provides more precision at the cost of
+% complexity.
 
