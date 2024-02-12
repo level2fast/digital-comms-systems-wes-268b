@@ -17,7 +17,7 @@ end
 
 % Soft decision decoder
 corr_val = recv_codeword * (2 * valid_codes_mat.'- 1);
-[val, idx]  = max(corr_val,[],2); % from 2^k correlation values, the index 
+[~, idx]  = max(corr_val,[],2); % from 2^k correlation values, the index 
                                   % where the correlation value is maximized 
                                   % corresponds to the maximum likelihood 
                                   % transmit code word.

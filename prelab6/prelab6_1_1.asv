@@ -27,7 +27,7 @@ for nIdx = 1:size(n_subcarrier)
     title('Real Part of OFDM Signal');
     xlabel('time');
     ylabel('Amplitude');
-    legend("OFDM real part")
+    legend("real part")
     hold on
 end
 hold off
