@@ -1,15 +1,15 @@
 %% Generation of OFDM Signals
 % An unmodulated OFDM signal maybe written as 
 % s(t) = real(sum(e^(1j*pi*n*fc*t)))
-
+clear
 % Parameters
 num_subcarriers = 4;              % Number of subcarriers
 f_0 = 1;                          % center frequency 
-bw_hz = 1;                        % bandwidth
+bw_hz = 2;                        % bandwidth
 delta_f  = bw_hz/num_subcarriers; % subcarrier spacing
-Ts = 1/delta_f;                   % symbol duration
-symbol_rate_sps = 1/(Ts*2);       % symbol rate?
-t = 0:symbol_rate_sps:Ts;         % time vector
+Ts_sec = 1/delta_f;               % symbol duration
+symbol_rate_sps = 1/(Ts_sec*50);  % symbol rate, i.e. the rate at which symbols are transmitted within each subcarrier
+t = 1:symbol_rate_sps:Ts_sec;     % time vector
 
 % Generate complex exponential carriers
 n_subcarrier = (1:num_subcarriers)';
@@ -19,15 +19,17 @@ s_t = zeros(rows,cols);
 
 %% a) Plot the time waveform for each of the four subcarriers using f0 = 1.
 for nIdx = 1:size(n_subcarrier)
-    s_t(nIdx,:) = exp(1j * 2 * pi * n_subcarrier(nIdx) * f_0 * t);
+    sub_carrier = n_subcarrier(nIdx);
+    s_t(nIdx,:) = exp(-1j * 2 * pi * sub_carrier * f_0 * t);
     % Plot the generated OFDM signal
     figure(1);
     subplot(2, 2, nIdx);
-    plot(t,real(s_t(nIdx,:)));
+    plot(t,(s_t(nIdx,:)));
     title('Real Part of OFDM Signal');
     xlabel('time');
     ylabel('Amplitude');
     legend("OFDM real part")
+    grid on
     hold on
 end
 hold off
@@ -40,13 +42,10 @@ for nIdx = 1:size(n_subcarrier)
     xlabel('time');
     ylabel('Amplitude');
     legend
+    grid on
     hold on
 end
+hold off
 
-%% c) Determine the minimum subcarrier symbol duration Ts such that the subcarriers are orthogonal
-
-%% d) Determine the minimum subcarrier symbol such that the  subcarriers are orthogonal
-
-% Ensure each subcarrier has a random phase offset θn
 
 
