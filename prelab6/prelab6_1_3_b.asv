@@ -1,4 +1,4 @@
-%% Prelab6 Problem 3.b
+%% Prelab6 Problem 3.b Plot the bit energy(Eb) as a function of delta_f for T = 1 from delta_f to 1/2*T
 T = 1; % symbol duration
 fc = 1e3;
 % Define the function to integrate
@@ -8,14 +8,14 @@ delta_f_vec = 0:0.0005:1/(2*T);
 y_t = zeros(size(delta_f_vec,2),1)';
 for fdIdx = 1:size(delta_f_vec,2)
     % Perform the integration
-    y_t(fdIdx) = (1/T) * integral(@(t) func(t,fc,delta_f_vec(fdIdx)), 0, T);
+    y_t(fdIdx) = (1/2*T) * integral(@(t) func(t,fc,delta_f_vec(fdIdx)), 0, T);
 end
 
-% Display the result
+% Display the result,
 disp(['Integral value: ', num2str(y_t)]);
 figure(1)
-plot(y_t)
+plot(delta_f_vec,y_t)
 title('Symbol energy of $\cos({2} \pi f_c \tau) \lbrack 2\cos({2} \pi (f_c + \Delta f) \tau$) \rbrack','Interpreter','latex');
 xlabel('$\Delta f$','Interpreter','latex');
-ylabel('Amplitude');
+ylabel('Symbol Energy (Eb)');
 grid on;
