@@ -7,5 +7,7 @@ function modulated_symbols = qpsk_modulate(data_bits)
     symbol_pairs = reshape(data_bits, 2, length(data_bits)/2);
 
     % Modulate symbol pairs using QPSK mapping
-    modulated_symbols = constellation(bi2de(symbol_pairs.') + 1);
+    symbol_pairs_transposed = symbol_pairs.';
+    symbol_pairs_mapped = bi2de(symbol_pairs_transposed) + 1;
+    modulated_symbols = constellation(symbol_pairs_mapped);
 end

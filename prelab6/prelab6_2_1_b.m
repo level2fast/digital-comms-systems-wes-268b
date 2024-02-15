@@ -13,7 +13,7 @@ fs = samples_per_symbol * symbol_rate; % Sampling frequency
 data = randi([0 1], 1, 2*num_symbols);
 
 % Map binary data to QPSK symbols
-qpsk_symbols = 1/sqrt(2) * (2 * data(1:2:end) - 1 + 1i * (2 * data(2:2:end) - 1));
+qpsk_symbols = 1/sqrt(2) * (2 * data(1:2:end) - 1 + 1j * (2 * data(2:2:end) - 1));
 
 % Upsample symbols to desired sampling rate
 upsampled_symbols = upsample(qpsk_symbols, samples_per_symbol);
@@ -33,7 +33,7 @@ figure(1);
 % Time series plot
 subplot(2, 1, 1);
 plot(t, subcarrier);
-title('QPSK Modulated Subcarrier - Time Series');
+title('Single QPSK Modulated Subcarrier1 - Time Series');
 xlabel('Time (s)');
 ylabel('Amplitude');
 grid on;
@@ -41,19 +41,31 @@ grid on;
 % Power spectrum plot
 subplot(2, 1, 2);
 NFFT = 2^nextpow2(length(subcarrier)); % Next power of 2 from length of y
-Y = fft(subcarrier,NFFT)/length(subcarrier);
+subc1_fft = fft(subcarrier,NFFT)/length(subcarrier);
 f = fs/2*linspace(0,1,NFFT/2+1);
-plot(f,10*log10(Y(1:NFFT/2+1).^2));
-title('QPSK Modulated Subcarrier - Power Spectrum');
+subc1_psd = 10*log10(subc1_fft(1:NFFT/2+1).^2);
+plot(f,subc1_psd);
+title('Single QPSK Modulated Subcarrier1 - Power Spectrum');
 xlabel('Frequency (Hz)');
 ylabel('Power');
 grid on;
 
+% Add a 2 new subcarriers
 N = samples_per_symbol;
+T = symbol_rate;
 % Adjust plot layout
 subplot(2, 1, 1);
 f1_delta  = (1/N*T);
-add_subcarrier(subcarrier,fc + f1_delta ,t);
+[~, sub_carrier2] = add_subcarrier(subcarrier,fc + f1_delta,fs,num_symbols,N);
 
+N = samples_per_symbol;
+T = symbol_rate;
 f2_delta  = (1/N*T);
-add_subcarrier(subcarrier,f1_delta + f2_delta ,t);
+[ofdm_signal, sub_carrier3] = add_subcarrier(sub_carrier2,fc + f2_delta,fs,num_symbols,N);
+
+%% 2.c use a parallelizer to transform the serial data from a QPSK symbol mapper fed by a random bitstream.
+
+
+
+
+

@@ -1,16 +1,16 @@
+clear
 % Parameters
-num_symbols = 8; % Number of QPSK symbols
+num_symbols = 8;         % Number of QPSK symbols
 samples_per_symbol = 32; % Sampling rate
-rolloff = 0; % Rectangular pulse shaping (no roll-off)
-symbol_rate = 1; % Symbol rate
-fc = 2e6; % Carrier frequency
+symbol_rate = 1;         % Symbol rate
+fc = 2e6;                % Carrier frequency
 fs = samples_per_symbol * symbol_rate; % Sampling frequency
 
 % Generate random binary data for QPSK modulation
-data = randi([0 1], 1, 2*num_symbols);
+data = randi([0 1], 1, 2 * num_symbols);
 
 % Map binary data to QPSK symbols
-qpsk_symbols = 1/sqrt(2) * (2 * data(1:2:end) - 1 + 1i * (2 * data(2:2:end) - 1));
+qpsk_symbols = 1/sqrt(2) * (2 * data(1:2:end) - 1 + 1j * (2 * data(2:2:end) - 1));
 
 % Upsample symbols to desired sampling rate
 upsampled_symbols = upsample(qpsk_symbols, samples_per_symbol);
@@ -40,11 +40,13 @@ grid on;
 subplot(2, 1, 2);
 NFFT = 2^nextpow2(length(subcarrier)); % Next power of 2 from length of y
 Y = fft(subcarrier,NFFT)/length(subcarrier);
-f = fs/2*linspace(0,1,NFFT/2+1);
-plot(f,10*log10(Y(1:NFFT/2+1).^2));
+f = fs/2 * linspace(0,1,NFFT/2+1);
+ydft = Y(1:NFFT/2+1);
+psdx = abs(ydft).^2;
+plot(f,pow2db(psdx));
 title('QPSK Modulated Subcarrier - Power Spectrum');
 xlabel('Frequency (Hz)');
-ylabel('Power');
+ylabel('Power(db)');
 grid on;
 
 % Adjust plot layout
