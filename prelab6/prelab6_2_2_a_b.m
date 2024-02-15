@@ -1,5 +1,5 @@
 %% OFDM and the FFT Matrix
-% a. Show that all columns are orthogonal
+%% 2.a Show that all columns are orthogonal
 % Create an IDFT matrix
 [twiddle_factors_mat] = calc_dft_twiddle_factors([1 1 1 1]);
 disp('IDFT Matrix:');
@@ -23,6 +23,8 @@ msg = sprintf('2.a: Dot product of Twiddle Factor columns: %d \n', is_col_orthog
 disp(msg);
 identity = twiddle_factors_mat *conj(transpose(twiddle_factors_mat));
 identity = identity/norm(identity);
+
+
 
 
 %% 2.b.i Verify that FF^-1 = I, in other words, show that the matrix F is the inverse of F^-1;
