@@ -23,10 +23,10 @@ pulse_shaped_waveform = conv(upsampled_symbols, rect_pulse);
 
 % Modulate the pulse-shaped waveform onto the subcarrier
 t = (0:length(pulse_shaped_waveform)-1) / fs; % Time vector
-subcarrier = real(pulse_shaped_waveform .* exp(1i * 2 * pi * fc * t));
+subcarrier = real(pulse_shaped_waveform .* exp(1j * 2 * pi * fc * t));
 
 % Plotting
-figure;
+figure(1);
 
 % Time series plot
 subplot(2, 1, 1);
@@ -41,7 +41,7 @@ subplot(2, 1, 2);
 NFFT = 2^nextpow2(length(subcarrier)); % Next power of 2 from length of y
 Y = fft(subcarrier,NFFT)/length(subcarrier);
 f = fs/2*linspace(0,1,NFFT/2+1);
-plot(f,2*abs(Y(1:NFFT/2+1)));
+plot(f,10*log10(Y(1:NFFT/2+1).^2));
 title('QPSK Modulated Subcarrier - Power Spectrum');
 xlabel('Frequency (Hz)');
 ylabel('Power');
