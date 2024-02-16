@@ -2,7 +2,7 @@
 %% 1/(NTs) apart from the original subcarrier where T is the OFDM block symbol duration.
 
 % Parameters
-num_symbols = 8;         % Number of QPSK symbols
+num_symbols = 128;         % Number of QPSK symbols
 samples_per_symbol = 32; % Sampling rate
 rolloff = 0;             % Rectangular pulse shaping (no roll-off)
 symbol_rate = 1;         % Symbol rate
@@ -29,14 +29,14 @@ t = (0:length(pulse_shaped_waveform)-1) / fs; % Time vector
 subcarrier = pulse_shaped_waveform .* exp(1j * 2 * pi * fc * t);
 
 % Plotting
-figure(1);
-% Time series plot
-subplot(2, 1, 1);
-plot(t, subcarrier);
-title('Single QPSK Modulated Subcarrier1 - Time Series');
-xlabel('Time (s)');
-ylabel('Amplitude');
-grid on;
+% figure(1);
+% % Time series plot
+% subplot(2, 1, 1);
+% plot(t, subcarrier);
+% title('Single QPSK Modulated Subcarrier1 - Time Series');
+% xlabel('Time (s)');
+% ylabel('Amplitude');
+% grid on;
 
 % Power spectrum plot
 subplot(2, 1, 2);
@@ -44,11 +44,11 @@ NFFT = 2^nextpow2(length(subcarrier)); % Next power of 2 from length of y
 subc1_fft = fft(subcarrier,NFFT)/length(subcarrier);
 f = fs/2*linspace(0,1,NFFT/2+1);
 subc1_psd = 10*log10(subc1_fft(1:NFFT/2+1).^2);
-plot(f,subc1_psd);
-title('Single QPSK Modulated Subcarrier1 - Power Spectrum');
-xlabel('Frequency (Hz)');
-ylabel('Power');
-grid on;
+% plot(f,subc1_psd);
+% title('Single QPSK Modulated Subcarrier1 - Power Spectrum');
+% xlabel('Frequency (Hz)');
+% ylabel('Power');
+% grid on;
 
 % Add a 2 new subcarriers
 N = samples_per_symbol;
@@ -63,7 +63,24 @@ T = symbol_rate;
 f2_delta  = (1/N*T);
 [ofdm_signal, sub_carrier3] = add_subcarrier(sub_carrier2,fc + f2_delta,fs,num_symbols,N);
 
-%% 2.c use a parallelizer to transform the serial data from a QPSK symbol mapper fed by a random bitstream.
+%% 2.c use a parallelizer to transform the serial data from a QPSK symbol mapper fed by a random bitstream
+% Generate random binary data for QPSK modulation
+
+% create random bits for input to QPSK symbol mapper
+bitstream = randi([0 1], 1, 2*num_symbols);
+
+% Map binary data to QPSK symbols
+qpsk_symbols = qpsk_symbol_mapper(bit_vector=bitstream,input="bitstream");
+S_k = ofdm_parallelizer(symbol_values=qpsk_symbols);
+temp  = ifft(S_k);
+s_t = ofdm_serializer(symbol_subcarrier_mat=temp);
+
+%% c.i Plot the magnitude of power spectrum of the total transmitted signal s(t) with all subcarriers enabled
+%% c.ii zero out subcarriers, Plot the power spectrum of s(t) with only three subcarriers enabled.
+%% Plot the real part of the corresponding time series for each case. 
+
+% What happens if you try and view all of the subcarriers  constellations overlaid on top of one another? What does this mean if you try and generate an eye-pattern to find the optimal sampling time?
+
 
 
 
