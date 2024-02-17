@@ -6,7 +6,7 @@ num_symbols = 128;         % Number of QPSK symbols
 samples_per_symbol = 32; % Sampling rate
 rolloff = 0;             % Rectangular pulse shaping (no roll-off)
 symbol_rate = 1;         % Symbol rate
-fc = 2e6;                % Carrier frequency
+fc = 2e3;                % Carrier frequency
 fs = samples_per_symbol * symbol_rate; % Sampling frequency
 
 % Generate random binary data for QPSK modulation
@@ -29,14 +29,14 @@ t = (0:length(pulse_shaped_waveform)-1) / fs; % Time vector
 subcarrier = pulse_shaped_waveform .* exp(1j * 2 * pi * fc * t);
 
 % Plotting
-% figure(1);
-% % Time series plot
-% subplot(2, 1, 1);
-% plot(t, subcarrier);
-% title('Single QPSK Modulated Subcarrier1 - Time Series');
-% xlabel('Time (s)');
-% ylabel('Amplitude');
-% grid on;
+figure(1);
+% Time series plot
+subplot(2, 1, 1);
+plot(t, subcarrier);
+title('Single QPSK Modulated Subcarrier1 - Time Series');
+xlabel('Time (s)');
+ylabel('Amplitude');
+grid on;
 
 % Power spectrum plot
 subplot(2, 1, 2);
@@ -44,11 +44,11 @@ NFFT = 2^nextpow2(length(subcarrier)); % Next power of 2 from length of y
 subc1_fft = fft(subcarrier,NFFT)/length(subcarrier);
 f = fs/2*linspace(0,1,NFFT/2+1);
 subc1_psd = 10*log10(subc1_fft(1:NFFT/2+1).^2);
-% plot(f,subc1_psd);
-% title('Single QPSK Modulated Subcarrier1 - Power Spectrum');
-% xlabel('Frequency (Hz)');
-% ylabel('Power');
-% grid on;
+plot(f,subc1_psd);
+title('Single QPSK Modulated Subcarrier1 - Power Spectrum');
+xlabel('Frequency (Hz)');
+ylabel('Power');
+grid on;
 
 % Add a 2 new subcarriers
 N = samples_per_symbol;
@@ -76,7 +76,33 @@ temp  = ifft(S_k);
 s_t = ofdm_serializer(symbol_subcarrier_mat=temp);
 
 %% c.i Plot the magnitude of power spectrum of the total transmitted signal s(t) with all subcarriers enabled
+% Power spectrum plot
+figure(2)
+subcarrier = s_t;
+subplot(2, 1, 1);
+NFFT = 2^nextpow2(length(subcarrier)); % Next power of 2 from length of y
+Y = fft(subcarrier,NFFT)/length(subcarrier);
+f = fs/2 * linspace(0,1,NFFT/2+1);
+ydft = Y(1:NFFT/2+1);
+psdx = abs(ydft).^2;
+plot(f,pow2db(psdx));
+title('QPSK Modulated 4 Subcarriers - Power Spectrum');
+xlabel('Frequency (Hz)');
+ylabel('Power(db)');
+grid on;
 %% c.ii zero out subcarriers, Plot the power spectrum of s(t) with only three subcarriers enabled.
+subcarrier = s_t;
+subplot(2, 1, 1);
+NFFT = 2^nextpow2(length(subcarrier)); % Next power of 2 from length of y
+Y = fft(subcarrier,NFFT)/length(subcarrier);
+f = fs/2 * linspace(0,1,NFFT/2+1);
+ydft = Y(1:NFFT/2+1);
+psdx = abs(ydft).^2;
+plot(f,pow2db(psdx));
+title('QPSK Modulated Subcarrier - Power Spectrum');
+xlabel('Frequency (Hz)');
+ylabel('Power(db)');
+grid on;
 %% Plot the real part of the corresponding time series for each case. 
 
 % What happens if you try and view all of the subcarriers  constellations overlaid on top of one another? What does this mean if you try and generate an eye-pattern to find the optimal sampling time?

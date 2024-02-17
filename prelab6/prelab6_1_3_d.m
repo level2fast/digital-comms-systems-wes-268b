@@ -20,5 +20,5 @@ plot(delta_f_vec,y_t)
 title(['BER of $\cos({2} \pi f_c \tau) \lbrack 2\cos({2} \pi ' ...
     '(f_c + \Delta f) \tau$) \rbrack'],'Interpreter','latex');
 xlabel('$\Delta f$','Interpreter','latex');
-ylabel('BER (Pb)');
+ylabel('Symbol Energy y(t)');
 grid on;
