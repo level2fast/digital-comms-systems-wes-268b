@@ -17,7 +17,7 @@ rect_pulse = ones(1, samples_per_symbol);
 % Pulse shaping using convolution
 pulse_shaped_waveform = conv(upsampled_symbols, rect_pulse);
 
-% Modulate the pulse-shaped waveform onto the subcarrier
+% Add subcarrier by performing a frequency shift
 t = (0:length(pulse_shaped_waveform)-1) / fs; % Time vector
 new_subcarrier = pulse_shaped_waveform .* exp(1j * 2 * pi * f_delta * t);
 output_signal = signal .* new_subcarrier;

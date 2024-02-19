@@ -1,6 +1,6 @@
 clear
 % Parameters
-num_symbols = 8;         % Number of QPSK symbols
+num_symbols = 128;       % Number of QPSK symbols
 samples_per_symbol = 32; % Sampling rate
 symbol_rate = 1;         % Symbol rate
 fc = 2e6;                % Carrier frequency
@@ -27,7 +27,6 @@ subcarrier = real(pulse_shaped_waveform .* exp(1j * 2 * pi * fc * t));
 
 % Plotting
 figure(1);
-
 % Time series plot
 subplot(2, 1, 1);
 plot(t, subcarrier);
@@ -39,15 +38,12 @@ grid on;
 % Power spectrum plot
 subplot(2, 1, 2);
 NFFT = 2^nextpow2(length(subcarrier)); % Next power of 2 from length of y
-Y = fft(subcarrier,NFFT)/length(subcarrier);
+subcarrier_fft = fft(subcarrier,NFFT)/length(subcarrier);
 f = fs/2 * linspace(0,1,NFFT/2+1);
-ydft = Y(1:NFFT/2+1);
-psdx = abs(ydft).^2;
+subcarrier_fft = subcarrier_fft(1:NFFT/2+1);
+psdx = abs(subcarrier_fft).^2;
 plot(f,pow2db(psdx));
 title('QPSK Modulated Subcarrier - Power Spectrum');
 xlabel('Frequency (Hz)');
 ylabel('Power(db)');
 grid on;
-
-% Adjust plot layout
-subplot(2, 1, 1);
