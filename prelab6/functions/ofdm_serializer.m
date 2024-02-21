@@ -10,9 +10,9 @@ ofmd_mat = ofdm.symbol_subcarrier_mat;
 ofdm_serial_vector = reshape(ofmd_mat, 1, []);
 
 % Display the reshaped matrix
-disp('Original vector:');
-disp(ofmd_mat);
-disp('Reshaped matrix with 32 rows:');
-disp(ofdm_serial_vector);
+% disp('Original vector:');
+% disp(ofmd_mat);
+% disp('Reshaped matrix with 32 rows:');
+% disp(ofdm_serial_vector);
 end
 
