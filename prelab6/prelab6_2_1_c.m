@@ -3,15 +3,16 @@
 clear
 clf
 % Parameters
-num_symbols = 512;                     % Number of QPSK symbols
+num_symbols = 1024;                      % Number of QPSK symbols
 samples_per_symbol = 32;               % Sampling rate
+num_subcarriers  = 34;
 rolloff = 0;                           % Rectangular pulse shaping (no roll-off)
 symbol_rate = 1;                       % Symbol rate
 fc = 2e3;                              % Carrier frequency
 fs = samples_per_symbol * symbol_rate; % Sampling frequency
 
 % Generate random binary data for QPSK modulation
-data = randi([0 1], 1, 2*num_symbols);
+data = randi([0 1], 1, 2*num_symbols*num_subcarriers);
 
 % Map binary data to QPSK symbols
 qpsk_symbols = 1/sqrt(2) * (2 * data(1:2:end) - 1 + 1j * (2 * data(2:2:end) - 1));
@@ -19,30 +20,33 @@ qpsk_symbols = repelem(qpsk_symbols,samples_per_symbol);
 
 % Modulate the pulse-shaped waveform onto the subcarrier
 t = (0:length(qpsk_symbols)-1) / fs; % Time vector
-sub_carrier = qpsk_symbols .* exp(1j * 2 * pi * fc * t);
+%sub_carrier = qpsk_symbols .* exp(1j * 2 * pi * fc * t);
+sub_carrier = qpsk_symbols;
 
 % % Add a 2 new subcarriers
-N = samples_per_symbol;
-Ts = t(end);
-f1_delta  = (1/N*Ts);
-[~, sub_carrier2] = add_subcarrier(sub_carrier,fc + f1_delta,fs,num_symbols,N);
-
-f2_delta  = (1/N*Ts);
-[~, sub_carrier3] = add_subcarrier(sub_carrier2,fc - f2_delta,fs,num_symbols,N);
-
-f3_delta  = 2*(1/N*Ts);
-[~, sub_carrier4] = add_subcarrier(sub_carrier3,fc,fs,num_symbols,N);
-
-ofdm_signal = [sub_carrier sub_carrier2 sub_carrier3 sub_carrier4];
+% N = samples_per_symbol;
+% Ts = t(end);
+% f1_delta  = (1/15*N*Ts);
+% [~, sub_carrier2] = add_subcarrier(sub_carrier,fc,fs,num_symbols,N);
+% 
+% f2_delta  = (1/15*N*Ts);
+% [~, sub_carrier3] = add_subcarrier(sub_carrier2,fc,fs,num_symbols,N);
+% 
+% f3_delta  = 2*(1/15*N*Ts);
+% [~, sub_carrier4] = add_subcarrier(sub_carrier3,fc,fs,num_symbols,N);
+% 
+% ofdm_signal_serial = [sub_carrier sub_carrier2 sub_carrier3 sub_carrier4];
+% ofdm_signals_sum = sub_carrier + sub_carrier2 + sub_carrier3 + sub_carrier4;
 
 % convert symbols from serial to parallel
-s_k = ofdm_parallelizer(symbol_values=ofdm_signal);
+s_k = ofdm_parallelizer(symbol_values=sub_carrier);
 
 % perform ifft to on parallelized data 
 temp  = ifft(s_k);
+temp_normalized = 1/sqrt(length(temp)) .* temp;
 
 % convert symbols from parallel to serial
-s_t = ofdm_serializer(symbol_subcarrier_mat=temp);
+s_t = ofdm_serializer(symbol_subcarrier_mat=temp_normalized);
 %% c.i Plot the magnitude of power spectrum of the total transmitted signal s(t) with all subcarriers enabled
 % Power spectrum plot
 figure(1)
@@ -61,8 +65,16 @@ ylabel('Magnitude');
 grid on;
 
 
-%% c.ii zero out subcarriers, Plot the power spectrum of s(t) with only three subcarriers enabled.
-subcarrier1_3 = s_t(1:(num_symbols*3));
+%% c.ii Plot the power spectrum of s(t) with only three subcarriers enabled.
+s_k2 = ofdm_parallelizer(symbol_values=sub_carrier);
+
+% perform ifft to on parallelized data 
+temp  = ifft(s_k2);
+
+% convert symbols from parallel to serial
+s_t = ofdm_serializer(symbol_subcarrier_mat=temp_normalized);
+subcarrier1_3 = temp(:,1:3);
+subcarrier1_3 = ofdm_serializer(symbol_subcarrier_mat=subcarrier1_3);
 subplot(2, 1, 2);
 NFFT            = 2^nextpow2(length(subcarrier1_3)); % Next power of 2 from length of signal
 signal1_1       = subcarrier1_3;
@@ -78,24 +90,24 @@ grid on;
 
 
 %% Plot the real part of the corresponding time series for each case. 
-figure(2)
-subcarrier_all = s_t;
-t_all = (0:length(subcarrier_all)-1) / fs; % Time vector
-subplot(2, 1, 1);
-plot(t_all, real(subcarrier_all));
-title('2.1.c.iii OFDM All Subcarriers - Time Series');
-xlabel('Frequency (Hz)');
-ylabel('Magnitude');
-grid on;
-
-subcarrier1_3 = s_t(1:(num_symbols*3));
-t1_3 = (0:length(subcarrier1_3)-1) / fs; % Time vector
-subplot(2, 1, 2);
-plot(t1_3, real(subcarrier1_3));
-title('2.1.c.iii OFDM 3 Subcarriers - Time Series');
-xlabel('Frequency (Hz)');
-ylabel('Power(dB)');
-grid on;
+% figure(2)
+% subcarrier_all = s_t;
+% t_all = (0:length(subcarrier_all)-1) / fs; % Time vector
+% subplot(2, 1, 1);
+% plot(t_all, real(subcarrier_all));
+% title('2.1.c.iii OFDM All Subcarriers - Time Series');
+% xlabel('Frequency (Hz)');
+% ylabel('Magnitude');
+% grid on;
+% 
+% subcarrier1_3 = s_t(1:(num_symbols*3));
+% t1_3 = (0:length(subcarrier1_3)-1) / fs; % Time vector
+% subplot(2, 1, 2);
+% plot(t1_3, real(subcarrier1_3));
+% title('2.1.c.iii OFDM 3 Subcarriers - Time Series');
+% xlabel('Frequency (Hz)');
+% ylabel('Power(dB)');
+% grid on;
 % What happens if you try and view all of the subcarriers  constellations 
 % overlaid on top of one another? What does this mean if you try and generate 
 % an eye-pattern to find the optimal sampling time?

@@ -26,10 +26,10 @@ N = samples_per_symbol;
 T = symbol_rate;
 % Adjust plot layout
 Ts = t(end);
-f1_delta  = (1/N*Ts);
+f1_delta  = (1/15*N*Ts);
 [~, sub_carrier2] = add_subcarrier(sub_carrier,fc + f1_delta,fs,num_symbols,N);
 
-f2_delta  = (1/N*Ts);
+f2_delta  = (1/15*N*Ts);
 [ofdm_signal, sub_carrier3] = add_subcarrier(sub_carrier2,fc - f2_delta,fs,num_symbols,N);
 
 figure(2)
