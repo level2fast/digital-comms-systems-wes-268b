@@ -9,11 +9,5 @@ symbols = ofdm.symbol_values;
 subcarriers = ofdm.subcarrier_num;
 % Reshape the vector into a matrix with 32 rows
 complex_block = reshape(symbols, subcarriers, []);
-
-% % Display the reshaped matrix
-% disp('Original vector:');
-% disp(symbols);
-% disp('Reshaped matrix with 32 rows:');
-% disp(complex_block);
 end
 

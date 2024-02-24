@@ -164,3 +164,9 @@ xlabel('In-phase (I)');
 ylabel('Quadrature (Q)');
 grid on;
 axis equal;
+
+% time_shift_us = 1/1e6;   % shift time by 10 microseconds
+% t0 = t * (time_shift_us); 
+% f  = 1e3;
+% omega = 2*pi*f;
+% shifted_sig = s_t .* exp(1j*t0*omega);
