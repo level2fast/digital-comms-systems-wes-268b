@@ -25,19 +25,19 @@ temp_normalized  = ifft(s_k,num_subcarriers) * sqrt(num_subcarriers);
 s_t = ofdm_serializer(symbol_subcarrier_mat=temp_normalized);
 
 % Power spectrum plot
-% figure(1)
-% subcarrier_all = s_t;
-% subplot(2, 1, 1);
-% NFFT            = 2^nextpow2(length(subcarrier_all)); % Next power of 2 from length of signal
-% signal1_1       = subcarrier_all;
-% ofdm_fft1_1     = fft(signal1_1,NFFT);
-% fshift1_1       = (-NFFT/2:NFFT/2-1);
-% ofdm_psd1_1     = abs(ofdm_fft1_1); 
-% plot(fshift1_1, fftshift(mag2db(ofdm_psd1_1)));
-% title('2.1.c.i OFDM All Subcarriers - Magnitude');
-% xlabel('Frequency (Hz)');
-% ylabel('Magnitude');
-% grid on;
+figure(1)
+subcarrier_all = s_t;
+subplot(2, 1, 1);
+NFFT            = 2^nextpow2(length(subcarrier_all)); % Next power of 2 from length of signal
+signal1_1       = subcarrier_all;
+ofdm_fft1_1     = fft(signal1_1,NFFT);
+fshift1_1       = (-NFFT/2:NFFT/2-1);
+ofdm_psd1_1     = abs(ofdm_fft1_1); 
+plot(fshift1_1, fftshift(mag2db(ofdm_psd1_1)));
+title('2.1.c.i OFDM All Subcarriers - Magnitude');
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+grid on;
 
 
 %% c.ii Plot the power spectrum of s(t) with only three subcarriers enabled.
@@ -50,17 +50,17 @@ subcarrier1_3_mat(4:end,:) = 0;
 subcarrier1_3_mat_mod = ifft(subcarrier1_3_mat) * sqrt(num_subcarriers);
 subcarrier1_3_serial = ofdm_serializer(symbol_subcarrier_mat = subcarrier1_3_mat_mod);
 
-% subplot(2, 1, 2);
-% freqs = linspace(-0.5,0.5,numel(s_t));
-% signal1_1       = subcarrier1_3_serial;
-% ofdm_fft1_1     = abs(fft(signal1_1));
-% ofdm_fft1_1_db  = mag2db(ofdm_fft1_1);
-% ofdm_shifted1_1 = fftshift(ofdm_fft1_1_db);
-% plot(freqs, ofdm_shifted1_1);
-% title('2.1.c.ii OFDM 3 Subcarriers - Power Specturm');
-% xlabel('Frequency (Hz)');
-% ylabel('Power(dB)');
-% grid on;
+subplot(2, 1, 2);
+freqs = linspace(-0.5,0.5,numel(s_t));
+signal1_1       = subcarrier1_3_serial;
+ofdm_fft1_1     = abs(fft(signal1_1));
+ofdm_fft1_1_db  = mag2db(ofdm_fft1_1);
+ofdm_shifted1_1 = fftshift(ofdm_fft1_1_db);
+plot(freqs, ofdm_shifted1_1);
+title('2.1.c.ii OFDM 3 Subcarriers - Power Specturm');
+xlabel('Frequency (Hz)');
+ylabel('Power(dB)');
+grid on;
 
 %% Plot the real part of the corresponding time series for each case. 
 samp_freq_hz = 1e3;
