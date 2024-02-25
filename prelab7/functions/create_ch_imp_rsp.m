@@ -38,8 +38,8 @@ channel_impulse_response = channel_impulse_response / norm(channel_impulse_respo
 % transmitted_signal = randn(1, num_symbols);
 % 
 % % Convolve transmitted signal with channel impulse response
-% received_signal = conv(transmitted_signal, channel_impulse_response);
-
+%received_signal = conv(transmitted_signal, channel_impulse_response);
+%
 % Display results
 % figure;
 % subplot(2, 1, 1);
@@ -47,7 +47,7 @@ channel_impulse_response = channel_impulse_response / norm(channel_impulse_respo
 % title('Channel Impulse Response');
 % xlabel('Sample');
 % ylabel('Amplitude');
-% 
+%
 % subplot(2, 1, 2);
 % plot(0:length(received_signal)-1, received_signal);
 % hold on;

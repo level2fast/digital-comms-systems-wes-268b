@@ -1,4 +1,5 @@
-%% 1.b Now add cyclic prefix (CP) to the data that is longer than the delay in the channel model.
+%% 1.a Using the 32 subcarrier data from the previous simulation problem in Prelab 6, simulate
+% the channel given by the discrete impulse response h[n] = δ[n] − δ[n − 16].
 % Summary: Delay spread refers to the spreading of a transmitted signal over 
 % time due to multipath propagation in the channel. As a result, different 
 % copies of the transmitted signal arrive at the receiver with different 
@@ -26,10 +27,10 @@ num_subcarriers     = 32;
 num_samp_per_symbol = 32;
 num_samples = total_qpsk_symbols * num_samp_per_symbol;
 
-% Generate random binary data for QPSK modulation
+% generate random binary data for QPSK modulation
 data = randi([0 3],[total_qpsk_symbols * num_subcarriers 1] );
 
-% Map binary data to QPSK symbols;
+% map binary data to QPSK symbols;
 qpsk_symbols = exp(1j*data*pi/2);
 sub_carrier = qpsk_symbols;
 
@@ -47,8 +48,8 @@ sig_tx = sig_serial;
 
 % need to create a delayed version of the received signal. This simulates the
 % effect that the channel impulse response has on the transmitted OFDM signal.
-
-% Convolution can be used to create a delayed and shifted version of a
+% 
+% convolution can be used to create a delayed and shifted version of a
 % signal. Convolve the transmitted signal with a discrete time impulse
 % response.
 
@@ -61,7 +62,6 @@ sig_rx = conv(sig_tx,channel_imp_rsp);
 %% Repeat part prelab7.2.a
 figure(1)
 shifted_sig = sig_rx(1:length(sig_tx));
-%shifted_sig = circshift(sig_tx,16);
 subcarrier_all = shifted_sig + sig_tx;
 NFFT            = 2^nextpow2(length(subcarrier_all)); % Next power of 2 from length of signal
 signal1_1       = subcarrier_all;
@@ -77,7 +77,6 @@ grid on;
 %% Plot the constellation of several subcarriers 
 figure(6)
 shifted_sig = sig_rx(1:length(sig_tx));
-%shifted_sig = circshift(sig_tx,16);
 shifted_sig = reshape(shifted_sig, num_subcarriers, []);
 
 recv_offset_sig = fft(shifted_sig);
