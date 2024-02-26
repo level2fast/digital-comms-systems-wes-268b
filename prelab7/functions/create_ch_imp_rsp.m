@@ -8,7 +8,7 @@ end
 % Parameters
 num_taps = cir.taps;       % Number of taps
 max_delay = cir.time_delay; % Maximum delay (samples)
-max_attenuation = 0.9;      % Maximum attenuation
+max_attenuation = 1;      % Maximum attenuation
 
 % Generate random taps
 taps = zeros(num_taps, 2);
@@ -20,6 +20,7 @@ end
 % Create channel impulse response
 channel_length = max(taps(:, 1)) + 1;
 channel_impulse_response = zeros(1, channel_length);
+channel_impulse_response(1) = 1;
 for i = 1:num_taps
     delay = taps(i, 1);
     attenuation = taps(i, 2);
