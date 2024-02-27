@@ -9,9 +9,10 @@
 fs_hz   = 20e6;
 t_short = 0.8e6;
 t_long  = 3.2e6;
-
-num_samples_short = fs_hz*t_short;
-num_samples_long = fs_hz*t_long;
+num_samples_short = fs_hz*(t_short/1e6);
+num_samples_long = fs_hz*(t_long/1e6);
+display(num_samples_long)
+display(num_samples_short)
 
 %% 1.b Consider the received time-series r[n], which consists of the above preamble time-series
 % x[n] with a frequency offset f0 and initial phase offset ϕ0. Assume the following
@@ -23,11 +24,11 @@ num_samples_long = fs_hz*t_long;
 % frequency given by f0 = ϵ/N = feTs where fe is the absolute frequency error and
 % Ts is the sample time (see Lecture 8A).
 % • There is no additive noise in the measurements of r[n].
-f0_short = 1/t_short;
-phi = 0;
-phase = 2*pi*f0_short*n+phi;
-x_n  = 0:1/fs_hz:t_short;
-r_n = exp(1j*phase*x_n);
+% f0_short = 1/t_short;
+% phi = 0;
+% phase = 2*pi*f0_short*n+phi;
+% x_n  = 0:1/fs_hz:t_short;
+% r_n = exp(1j*phase*x_n);
 
 
 

@@ -26,8 +26,24 @@ ofdm_blocks = 10;
 bpsk_training_seq = ofdm_packet.s;
 ofdm_sig_rx = ofdm_packet.y;
 %% 2.2.a Find the start time of the packet using the cross-correlation
-% modulate the bpsk training seq to an OFDM symbol
+% In OFDM, a training sequence is a predefined set of symbols or patterns 
+% that are known both to the transmitter and the receiver. This sequence is
+% used for various purposes, including synchronization, channel estimation,
+% and equalization
 
+% modulate the bpsk training seq to an OFDM symbol
+bpsk_training_seq_modulated = ifft(bpsk_training_seq);
+
+% N1 is the 1st sample of the 1st training sequence
+% N2 is the 1st sample of the second training sequence
+% Llong is the number of samples in the each training sequence
+tr1_idx = (cp_length * 2) + 1;
+tr2_idx = tr1_idx + (train_seq_length/2);
+rcv_pkt_start = xcorr(ofdm_sig_rx,bpsk_training_seq_modulated);
+disp(max(real(rcv_pkt_start)))
+figure;
+plot(abs(rcv_pkt_start))
+hold on
 
 %% 2.2.a.i Determine the frequency offset f0
 % average over every sample contained within each training sequence
