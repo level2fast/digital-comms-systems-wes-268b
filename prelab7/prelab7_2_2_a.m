@@ -17,7 +17,7 @@ clear
 clf
 ofdm_packet = load("ofdm_pkt.mat");
 fft_size = 64;
-active_subc = [1,26,38,63];
+active_subc = [1:26;38:63];
 cp_length = 16;
 train_seq_length = 128;
 num_bit_per_symbol = 1;
@@ -31,18 +31,31 @@ ofdm_sig_rx = ofdm_packet.y;
 % used for various purposes, including synchronization, channel estimation,
 % and equalization
 
-% modulate the bpsk training seq to an OFDM symbol
-bpsk_training_seq_modulated = ifft(bpsk_training_seq);
+% first add zeros to training sequence to align it with
+% 0 bpsk_training_seq(1:26) zeros(1:12) bpsk_training_seq(27:52) 0
+bpsk_training_seq_zero_filled = [0];
+bpsk_training_seq_zero_filled(end + 26)= 0;
+bpsk_training_seq_zero_filled(2:27) = bpsk_training_seq(1:26);
+bpsk_training_seq_zero_filled(28:37) = 0;
+bpsk_training_seq_zero_filled(38:63) = bpsk_training_seq(27:52);
+bpsk_training_seq_zero_filled(64) = 0;
 
+% modulate the bpsk training seq to an OFDM symbol
+bpsk_training_seq_modulated = ifft(bpsk_training_seq_zero_filled);
+%display(bpsk_training_seq_modulated)
 % N1 is the 1st sample of the 1st training sequence
 % N2 is the 1st sample of the second training sequence
 % Llong is the number of samples in the each training sequence
-tr1_idx = (cp_length * 2) + 1;
-tr2_idx = tr1_idx + (train_seq_length/2);
-rcv_pkt_start = xcorr(ofdm_sig_rx,bpsk_training_seq_modulated);
+% tr1_idx = (cp_length * 2) + 1;
+% tr2_idx = tr1_idx + (train_seq_length/2);
+
+rcv_pkt_start = c_corr(ofdm_sig_rx,bpsk_training_seq_modulated);
 disp(max(real(rcv_pkt_start)))
-figure;
+figure(1);
 plot(abs(rcv_pkt_start))
+xlabel('Samples');
+ylabel('Magnitude)');
+title('2.1.a Cross Correlation of training seq with rx signal- Magnitude');
 hold on
 
 %% 2.2.a.i Determine the frequency offset f0
