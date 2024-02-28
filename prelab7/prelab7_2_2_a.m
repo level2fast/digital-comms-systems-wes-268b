@@ -17,6 +17,7 @@ clear
 clf
 ofdm_packet = load("ofdm_pkt.mat");
 fft_size = 64;
+trainer_seq_size = 64;
 active_subc = [1:26;38:63];
 cp_length = 16;
 train_seq_length = 128;
@@ -43,14 +44,9 @@ bpsk_training_seq_zero_filled(64) = 0;
 % modulate the bpsk training seq to an OFDM symbol
 bpsk_training_seq_modulated = ifft(bpsk_training_seq_zero_filled);
 %display(bpsk_training_seq_modulated)
-% N1 is the 1st sample of the 1st training sequence
-% N2 is the 1st sample of the second training sequence
-% Llong is the number of samples in the each training sequence
-% tr1_idx = (cp_length * 2) + 1;
-% tr2_idx = tr1_idx + (train_seq_length/2);
 
-rcv_pkt_start = c_corr(ofdm_sig_rx,bpsk_training_seq_modulated);
-disp(max(real(rcv_pkt_start)))
+[rcv_pkt_start, lags] = c_corr(ofdm_sig_rx,bpsk_training_seq_modulated);
+disp(max(abs(rcv_pkt_start)))
 figure(1);
 plot(abs(rcv_pkt_start))
 xlabel('Samples');
@@ -60,6 +56,11 @@ hold on
 
 %% 2.2.a.i Determine the frequency offset f0
 % average over every sample contained within each training sequence
+% N1 is the 1st sample of the 1st training sequence
+% N2 is the 1st sample of the second training sequence
+% Llong is the number of samples in the each training sequence
+tr1_idx = 129;
+tr2_idx = 129 + trainer_seq_size;
 
 %% 2.2.a.ii Once you have determined f0, correct your entire packet by applying a frequency offset of −f0 
 % (i.e. de-rotating your packet).
