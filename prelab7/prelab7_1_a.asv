@@ -35,14 +35,13 @@ phase_n1 = 2*pi*f0_short*n_1+phi;
 r_n1     = exp(1j*phase_n1) * x_n;
 
 % all samples in training seq
-n_2         = 10;
-phase_n2    = 2*pi*f0_short*n_2+phi;
+n_2       =10;
+phase_n2 = 2*pi*f0_short*n_2+phi;
 r_n1_lshort = exp(1j*phase_n2)*x_n;
+z_1 = conj(r_n1) .* r_n1_lshort;
 
-% calculate 
-z_1         = conj(r_n1) .* r_n1_lshort;
-
-disp(max(real(z_1)))
+figure(1)
+plot(real(z_1))
 
 
 
