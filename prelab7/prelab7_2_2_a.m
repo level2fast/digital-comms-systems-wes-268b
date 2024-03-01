@@ -63,6 +63,18 @@ title('2.1.a Cross Correlation of training seq with rx signal- Magnitude');
 % N1 is the 1st sample of the 1st training sequence
 % N2 is the 1st sample of the second training sequence
 % Llong is the number of samples in the each training sequence
+% take a vector that is a chunk of y representing training sequence1
+
+% extract the training sequence from the received sequence
+train_seq_start = idx - train_seq_length;
+train_seq_end = idx;
+train_seq = ofdm_sig_rx(train_seq_start:train_seq_end);
+
+% average over every sample contained with the training sequence to
+% determine the frequency offset
+
+% determine the frequency offset 
+freq_offset_vector = atan2(img(Z2)/real(Z2))/(2*pi*train_seq_secs);
 tr1_idx = 129;
 tr2_idx = 129 + trainer_seq_size;
 
