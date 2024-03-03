@@ -44,14 +44,14 @@ bpsk_training_seq_modulated = ifft(bpsk_training_seq_zero_filled);
 x = 0:length(rcv_pkt_start)-1;
 
 [ymax,idx] = max(abs(rcv_pkt_start));
-% figure(1);
-% plot(x,abs(rcv_pkt_start))
-% hold on
-% plot(x(idx), ymax, 'ro')
-% hold off
-% xlabel('Samples');
-% ylabel('Magnitude)');
-% title('2.1.a Cross Correlation of training seq with rx signal- Magnitude');
+figure(1);
+plot(x,abs(rcv_pkt_start))
+hold on
+plot(x(idx), ymax, 'ro')
+hold off
+xlabel('Samples');
+ylabel('Magnitude)');
+title('2.1.a Cross Correlation of training seq with rx signal- Magnitude');
 
 %% 2.2.a.i Determine the frequency offset f0
 % average over every sample contained within each training sequence
@@ -153,5 +153,5 @@ end
 ofdm_sig_equalized = ofdm_sig_final;
 %figure(4)
 scatterplot(ofdm_sig_final)
-title('2.2.a.');
+title('2.2.a.vi');
 
