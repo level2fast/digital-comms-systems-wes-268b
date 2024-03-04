@@ -108,7 +108,6 @@ header = (train_seq_length + 32 + 16) + 1;
 last = header + fft_size;
 ofdm_sig_cp_rmvd  = ofdm_sig_rx_shifted(header:last);
 ofdm_sig_fft = fft(ofdm_sig_cp_rmvd,fft_size);
-%figure(3)
 scatterplot(ofdm_sig_fft)
 title('2.2.a.iv');
 %% 2.2.a.iv.A Plot the constellation of all subchannels overlapped on top of each other
