@@ -22,7 +22,6 @@ active_subc = [1:26;38:63];
 cp_length = 16;
 train_seq_length = 128;
 num_bit_per_symbol = 1;
-num_symbols = 0;
 ofdm_blocks = 10;
 bpsk_training_seq = ofdm_packet.s;
 ofdm_sig_rx = ofdm_packet.y;
@@ -83,8 +82,7 @@ disp(z1)
 % determine the frequency offset 
 freq_offset = angle(z1) / (2*pi*train_seq_samp);
 %% 2.2.a.ii Once you have determined f0, correct your entire packet by applying a frequency offset of −f0 
-% (i.e. de-rotating your packet).
-%freq_offset_vector = atan2(img(z1)/real(z1))/(2*pi*train_seq_samp);
+% (i.e. de-rotating your packet).);
 sig_len = 0:length(ofdm_sig)-1;
 ofdm_sig_rx_shifted = exp(-1j*2*pi*freq_offset*sig_len) .* ofdm_sig;
 %% 2.2.a.iii After you have removed the frequency offset, estimate the frequency domain channel coefficients H
@@ -110,48 +108,89 @@ header = (train_seq_length + 32 + 16) + 1;
 last = header + fft_size;
 ofdm_sig_cp_rmvd  = ofdm_sig_rx_shifted(header:last);
 ofdm_sig_fft = fft(ofdm_sig_cp_rmvd,fft_size);
-figure(3)
 scatterplot(ofdm_sig_fft)
 title('2.2.a.iv');
+%% 2.2.a.iv.A Plot the constellation of all subchannels overlapped on top of each other
+guard_interval = 32;
+header = (train_seq_length + guard_interval) + 1;
+ofdm_sig_header_rmvd = ofdm_sig_rx_shifted(header:end);
+ofdm_sig = reshape(ofdm_sig_header_rmvd,80,10).';
+ofdm_sig_all_subchannels = ofdm_sig(:,(cp_length+1):end);
+ofdm_sig_all_subchannels_fft = fft(ofdm_sig_all_subchannels);
+scatterplot(ofdm_sig_all_subchannels_fft(:))
+title('2.2.a.iv.A')
+%% 2.2.a.iv.B On separate figures, plot the constellation for subcarriers n = 0, 1, 2
+guard_interval = 32;
+header = (train_seq_length + guard_interval) + 1;
+ofdm_sig_header_rmvd = ofdm_sig_rx_shifted(header:end);
+ofdm_sig = reshape(ofdm_sig_header_rmvd,80,10).';
+ofdm_sig_all_subchannels = ofdm_sig(:,(cp_length+1):end);
+
+subc = 1;
+ofdm_sig_subcarrier1 = ofdm_sig_all_subchannels(:,subc);
+ofdm_sig_block2_fft = fft(ofdm_sig_subcarrier1);
+scatterplot(ofdm_sig_block2_fft(subc))
+title('2.2.a.iv.A  Subcarrier 0')
+
+subc = 2;
+ofdm_sig_subcarrier1 = ofdm_sig_all_subchannels(:,subc);
+ofdm_sig_subcarrier1_fft = fft(ofdm_sig_subcarrier1);
+scatterplot(ofdm_sig_subcarrier1_fft(subc))
+title('2.2.a.iv.A  Subcarrier 1')
+
+subc = 3;
+ofdm_sig_subcarrier2 = ofdm_sig_all_subchannels(:,subc);
+ofdm_sig_subcarrier2_fft = fft(ofdm_sig_subcarrier2);
+scatterplot(ofdm_sig_subcarrier2_fft(:))
+title('2.2.a.iv.A  Subcarrier 2')
+
 %% 2.2.a.v For the first OFDM block, apply the frequency domain equalizer G.
 channel_equalization_factor = 1./h_hat_avg;
 ofdm_sig_equalized = ofdm_sig_fft .* channel_equalization_factor;
-figure(4)
 scatterplot(ofdm_sig_equalized)
 title('2.2.a.v');
 
-% figure(7)
-% figure(8)
-%% 2.2.a.vi Apply the equalizer to the entire packet.
-process_data = 0;
-ofdm_sig_header_rmvd = ofdm_sig_rx_shifted(header:end);
-start = header;
-ofdm_block_size = 64;
-ofdm_sig_final = zeros(fft_size * ofdm_blocks,1)';
+%% 2.2.a.v.A On separate figures, plot the constellation for subcarriers n = 0, 1, 2.
+guard_interval           = 32;
+header                   = (train_seq_length + guard_interval) + 1;
+ofdm_sig_header_rmvd     = ofdm_sig_rx_shifted(header:end);
+ofdm_sig                 = reshape(ofdm_sig_header_rmvd,80,10).';
+ofdm_sig_all_subchannels = ofdm_sig(:,(cp_length+1):end);
 
-% channel_equalization_factor = 1./h_hat_avg;
-% ofdm_sig_equalized = ofdm_sig_fft .* channel_equalization_factor;
-count = 0;
-final_end = 0;
-for idxBlks = 1:ofdm_blocks
-    startIdx = (idxBlks*ofdm_block_size) +1;
-    endIdx =  (startIdx + ofdm_block_size);
-    sum = startIdx + endIdx;
-    diff = endIdx - startIdx;
-    extracted_ofdm_symbol = ofdm_sig_header_rmvd(startIdx:endIdx-1);
-    if(idxBlks == 1)
-        ofdm_sig_final(idxBlks:fft_size) = fft(extracted_ofdm_symbol,fft_size);
-    else
-        final_start = (fft_size + final_end) + 1;
-        final_end  = (final_start + fft_size)-1;
-        fft_out = fft(extracted_ofdm_symbol,fft_size);
-        vec = final_start:final_end;
-        ofdm_sig_final(vec) = fft_out .* channel_equalization_factor;
-    end
+subc   = 1;
+block0 = 1;
+ofdm_sig_block0      = ofdm_sig_all_subchannels(block0,:);
+ofdm_sig_block0_fft  = fft(ofdm_sig_block0,fft_size);
+ofdm_sig_block0_eq   = ofdm_sig_block0_fft .* channel_equalization_factor;
+ofdm_sig_subcarrier0 = ofdm_sig_block0_eq(subc);
+scatterplot(ofdm_sig_subcarrier0)
+title('2.2.a.v.A  Subcarrier 0')
 
-end
-ofdm_sig_equalized = ofdm_sig_final;
-%figure(4)
-scatterplot(ofdm_sig_final)
-title('2.2.a.vi');
+subc   = 2;
+block1 = 2;
+ofdm_sig_block1      = ofdm_sig_all_subchannels(block1,:);
+ofdm_sig_block1_fft  = fft(ofdm_sig_block1,fft_size);
+ofdm_sig_block1_eq   = ofdm_sig_block1_fft .* channel_equalization_factor;
+ofdm_sig_subcarrier1 = ofdm_sig_block1_eq(subc);
+scatterplot(ofdm_sig_subcarrier1)
+title('2.2.a.v.A  Subcarrier 1')
 
+subc   = 3;
+block2 = 3;
+ofdm_sig_block2       = ofdm_sig_all_subchannels(block2,:);
+ofdm_sig_block2_fft   = fft(ofdm_sig_block2,fft_size);
+ofdm_sig_block2_eq    = ofdm_sig_block2_fft .* channel_equalization_factor;
+ofdm_sig_subcarrier2  = ofdm_sig_block2_eq(subc);
+scatterplot(ofdm_sig_subcarrier2)
+title('2.2.a.v.A  Subcarrier 2')
+%% 2.2.a.vi.A Apply the equalizer to the entire packet.
+guard_interval           = 32;
+header                   = (train_seq_length + guard_interval) + 1;
+ofdm_sig_header_rmvd     = ofdm_sig_rx_shifted(header:end);
+ofdm_sig                 = reshape(ofdm_sig_header_rmvd,80,10).';
+ofdm_sig_all_subchannels = ofdm_sig(:,(cp_length+1):end);
+
+ofdm_sig_all_blocks_fft  = fft(ofdm_sig_all_subchannels,fft_size,2); % return 64 point dft of each row
+ofdm_sig_all_blocks_eq   = ofdm_sig_all_blocks_fft .* channel_equalization_factor;
+scatterplot(ofdm_sig_all_blocks_eq(:))
+title('2.2.a.vi.A  All Subcarriers')
